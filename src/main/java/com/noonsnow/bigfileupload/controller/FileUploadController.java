@@ -33,8 +33,8 @@ public class FileUploadController {
         return "bigFileUpload";
     }
 
-    //检查文件是否存在
-    @PostMapping("checkFileIsExist")
+
+    @PostMapping("checkFileIsExist")//检查文件是否存在
     @ResponseBody
     public Object checkFileExist(String md5value) {
         JSONObject resp = new JSONObject();
@@ -46,8 +46,8 @@ public class FileUploadController {
         return resp.toString();
     }
 
-    //检查分片是否存在
-    @PostMapping("checkChunkIsExist")
+
+    @PostMapping("checkChunkIsExist")//检查分片是否存在且完整
     @ResponseBody
     public Object checkChunkExist(String md5value, int chunk, int chunkSize) {
 
@@ -61,12 +61,10 @@ public class FileUploadController {
             return resp.toString();
         }
 
-        File block = new File(blocksDir + "/" + md5value + "/" + chunk); //分开判断性能会好点吧。。
+        File block = new File(blocksDir + "/" + md5value + "/" + chunk); //前面没通过就不用执行后面的了，性能会好点吧。。
         // System.out.println("blocklen:"+block.length()+"  "+"chunkSize:"+chunkSize);
-        if (block.length() != chunkSize) {
-
+        if (block.length() != chunkSize) {//分片是否完整
             resp.put("exist", "0");
-            System.out.println("分片不完整");
             return resp.toString();
         }
 
@@ -76,7 +74,7 @@ public class FileUploadController {
     }
 
 
-    @PostMapping("upload")
+    @PostMapping("upload")//接收上传的分片
     @ResponseBody
     public String fileUpload(String md5value, String chunks, int chunk, String id, String name,
                              String type, String lastModifiedDate, int chunkSize, MultipartFile file) {
@@ -86,7 +84,7 @@ public class FileUploadController {
         blockDir.mkdirs();
         File block = new File(blockDir, String.valueOf(chunk));
         try {
-            //搞了N多天，前端tmd要重复发送验证通过的分片，导致多插入数据，坑 （其实还是我没把MD5和chunk弄成联合主键，不然它重复插入不了的，自作孽啊）
+            //搞了N多天，WebUploader tmd要重复发送验证通过的分片，导致多插入数据，导致合并文件变大，坑 （其实还是之前我没把MD5和chunk弄成联合主键，不然它重复插入不了的，自作孽啊）
             boolean exist = blockMapper.getByMd5AndChunk(md5value, chunk) == null ? false : true;
             if (!exist) {
                 FileBlock fileBlock = new FileBlock(md5value, new Date(), block.getPath(), chunk, name, chunkSize);
@@ -105,7 +103,8 @@ public class FileUploadController {
         return jresp.toString();
     }
 
-    @RequestMapping("merge")
+
+    @RequestMapping("merge")//合并分片
     @ResponseBody
     public Object merge(String md5value, String name) {
         JSONObject resp = new JSONObject();
@@ -162,7 +161,6 @@ public class FileUploadController {
         if (checkTotalSize(file,blocks)) {
             //新增文件记录
             fileMapper.addUploadFile(new UploadFile(md5value, new Date(), file.getPath(), name));
-
             //----------------删除分片及记录----------------
             new File(blocksDir + "/" + md5value).delete();
             blockMapper.deleteByMd5(md5value);
