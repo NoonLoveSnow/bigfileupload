@@ -56,7 +56,7 @@ public class FileUploadController {
         //查数据库，分片是否存在
         FileBlock fileBlock = blockMapper.getByMd5AndChunk(md5value, chunk);
 
-        if (fileBlock == null) {//数据库不存在分片记录或者分片不完整，则要重传
+        if (fileBlock == null) {//数据库不存在分片记录或者分片不完整，则重传
             resp.put("exist", "0");
             return resp.toString();
         }
