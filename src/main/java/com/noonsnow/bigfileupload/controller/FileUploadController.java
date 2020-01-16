@@ -109,9 +109,9 @@ public class FileUploadController {
     public Object merge(String md5value, String name) {
         JSONObject resp = new JSONObject();
         //----------防止重复请求合并，如果数据库有记录，则不用合并了------------
-        List<UploadFile>uploadFiles=fileMapper.getByMd5(md5value);
-        if (uploadFiles.size()!=0){
-            resp.put("status","OK");
+        List<UploadFile> uploadFiles = fileMapper.getByMd5(md5value);
+        if (uploadFiles.size() != 0) {
+            resp.put("status", "OK");
             return resp.toString();
         }
 
@@ -158,29 +158,39 @@ public class FileUploadController {
             return resp.toString();
         }
 
-        if (checkTotalSize(file,blocks)) {
+        if (checkTotalSize(file, blocks)) {
             //新增文件记录
             fileMapper.addUploadFile(new UploadFile(md5value, new Date(), file.getPath(), name));
             //----------------删除分片及记录----------------
-            new File(blocksDir + "/" + md5value).delete();
+            deleteFile(new File(blocksDir + "/" + md5value));
             blockMapper.deleteByMd5(md5value);
             resp.put("status", "OK");
 
-        }else {
+        } else {
             file.delete();
-            resp.put("status","FAIL");
+            resp.put("status", "FAIL");
         }
         return resp.toString();
     }
 
     //-----------验证合并后的文件，就是验证文件大小---------------
-    boolean checkTotalSize(File file,List<FileBlock> blocks){
-        long total=0;
+    boolean checkTotalSize(File file, List<FileBlock> blocks) {
+        long total = 0;
         for (FileBlock block : blocks) {
-            total+=(long)block.getChunkSize();
+            total += (long) block.getChunkSize();
         }
-        System.out.println("total:"+total+"  "+"fileLength:"+file.length());
-        return total==file.length();
+        System.out.println("total:" + total + "  " + "fileLength:" + file.length());
+        return total == file.length();
     }
 
+    //删除分片文件
+    void deleteFile(File file) {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                deleteFile(f);
+            }
+        }
+        file.delete();
+    }
 }
