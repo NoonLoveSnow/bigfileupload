@@ -2,7 +2,8 @@
 SQLyog Ultimate v12.3.1 (64 bit)
 MySQL - 5.6.39 : Database - big_file_upload
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -27,13 +28,14 @@ CREATE TABLE `file` (
   `location` varchar(1000) DEFAULT NULL,
   `create_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `md5` (`md5`(255))
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
+  KEY `md5` (`md5`(5))
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8;
 
 /*Data for the table `file` */
 
-insert  into `file`(`id`,`file_name`,`md5`,`location`,`create_time`) values 
-(62,'SpringBoot资料.zip','ee567598284f8b128edd1d81a96a2877','C:\\files\\ee567598284f8b128edd1d81a96a2877\\SpringBoot资料.zip','2020-01-16 03:52:02');
+insert  into `file`(`id`,`file_name`,`md5`,`location`,`create_time`) values 
+
+(85,'SpringBoot资料.zip','ee567598284f8b128edd1d81a96a2877','C:\\files\\ee567598284f8b128edd1d81a96a2877\\SpringBoot资料.zip','2020-01-16 17:58:51');
 
 /*Table structure for table `file_block` */
 
@@ -46,7 +48,7 @@ CREATE TABLE `file_block` (
   `chunk` int(11) NOT NULL,
   `file_name` varchar(1000) DEFAULT NULL,
   `chunk_size` int(11) DEFAULT NULL,
-  PRIMARY KEY (`md5`(128),`chunk`)
+  PRIMARY KEY (`md5`(5),`chunk`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `file_block` */
